@@ -40,6 +40,18 @@ dat$Month <- as.numeric(dat$Month)
 dat$Month <- month.abb[dat$Month]
 ```
 
+Now that our data is clean, let's walk through using the Random Forest Algorithm.
+First we will make data sets for testing and training. These are random samples from our original data. We will use the training data to make the model and the testing data to evaluate how effective our model is at making predictions. For this data, I will make my training data 75% of the original data set and testing data the other 25% of the original data set. 
+```{r make data sets}
+set.seed(2019) # set seed for reproducible results
+
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(dat))
+train_ind <- sample(seq_len(nrow(dat)), size = smp_size)
+
+train <- dat[train_ind, ]
+test <- dat[-train_ind, ]
+```
 
 
 
