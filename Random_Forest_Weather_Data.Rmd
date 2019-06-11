@@ -4,20 +4,40 @@ author: "Samantha Bothwell"
 date: "6/11/2019"
 output: pdf_document
 ---
+SUMMARY OF RANDOM FOREST
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
+```{r load packages}
+# Load important packages
+library(tidyr)
+library(randomforest)
+```
 
 ```{r clean data}
 # First we read in the data and clean it
-dat = read.csv("Desktop/DATAS/My_material/weatherdata.csv")
+setwd("/Users/sbothwell/Desktop/DATAS/My_material")
+dat = read.csv("weatherdata.csv")
 
 # Rename columns
 colnames(dat) = c("DateTime(MST)","Temp(degF)","Humidity%","DewPt(degF)","Wind(mph)",
                   "WindDir(degNorth)","Gust(mph)","GustDir(degNorth)","Pressure(Hg)",
                   "Solar(W/m^2)","Percipitation")
+
+# Remove second row 
+dat = dat[-1,]
+
+# Split date and time
+dat = dat %>% separate(`DateTime(MST)`, c("Date","Time(MST)"), " ")
+
+# Split date
+dat = dat %>% separate(Date, c("Year","Month","Day"), "-")
+
+# Change numeric month to character
+dat$Month <- as.numeric(dat$Month)
+dat$Month <- month.abb[dat$Month]
 ```
 
 
