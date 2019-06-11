@@ -1,0 +1,25 @@
+---
+title: "Random Forest Atmos"
+author: "Samantha Bothwell"
+date: "6/11/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+
+```{r clean data}
+# First we read in the data and clean it
+dat = read.csv("Desktop/DATAS/My_material/weatherdata.csv")
+
+# Rename columns
+colnames(dat) = c("DateTime(MST)","Temp(degF)","Humidity%","DewPt(degF)","Wind(mph)",
+                  "WindDir(degNorth)","Gust(mph)","GustDir(degNorth)","Pressure(Hg)",
+                  "Solar(W/m^2)","Percipitation")
+```
+
+
+
+
