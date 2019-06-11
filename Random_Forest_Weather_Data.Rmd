@@ -1,5 +1,5 @@
 ---
-title: "Random Forest Atmos"
+title: "Random Forest Weather Data"
 author: "Samantha Bothwell"
 date: "6/11/2019"
 output: pdf_document
