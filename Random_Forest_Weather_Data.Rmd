@@ -6,6 +6,21 @@ output: pdf_document
 ---
 The random forest algorithm is a form of supervised learning. Random Forests are a form of decision trees. In the algorithm, trees are built by choosing a random subset of variables and then the model averages the predicitons of all the trees.
 
+The random forest algorithm is most often used when there is a mixture of numeric and factor variables. Before using the random forest algorithm, here are some pros and cons to consider:
+
+\textbf{Pros:}
+\begin{itemize}
+  \item You can obtain a reliable variable importance plot that ranks the variables by how helpful they are in predicting the response.
+  \item The algorithm is effectively able to fill in missing information based on what information is present.
+  \item The estimate for the generalization error progresses as the forest builds, and is unbiased.
+\end{itemize}
+
+\textbf{Cons:}
+\begin{itemize}
+  \item This is a black box algorithm - meaning, though it is powerful for predicting, it is difficult to interpret.
+  \item When working with a dataset with significant noise, the algorithm will overfit.
+  \item Variable importance is biased towards categorical variables with more levels. 
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
