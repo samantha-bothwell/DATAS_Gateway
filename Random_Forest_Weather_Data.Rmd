@@ -96,8 +96,11 @@ model = randomForest(`Temp_degF`~., data = train)
 
 We can view one of the trees from the Forest
 ```{r print a tree}
+nodefun = function(x, labs, digits, varlen){
+  paste("Avg Temp:", round(x$frame$yval,2), "\nn =", x$frame$n, "  ", "\nPct =", round(x$frame$n/x$frame$n[1]*100,2),"%")
+}
 tree = rpart(model, train)
-fancyRpartPlot(tree, palettes=c("Reds"))
+fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", yesno = 2, node.fun = nodefun)
 ```
 
 
