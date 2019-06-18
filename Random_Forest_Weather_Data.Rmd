@@ -107,4 +107,38 @@ tree = rpart(model, train)
 fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", yesno = 2, node.fun = nodefun)
 ```
 
+```{r}
+IncNodePur = model$importance[1:13]
+names = colnames(train)[c(1:4,6:14)]
 
+Imp = as.data.frame(cbind(names, IncNodePur))
+Imp$IncNodePur = as.numeric(as.character(Imp$IncNodePur))
+Imp$names = factor(Imp$names, levels = Imp$names[order(Imp$IncNodePur)])
+Imp = Imp[order(-IncNodePur),]
+
+p = ggplot(Imp, aes(IncNodePur, names)) +
+  geom_point(size = 4, shape = 16, col = "turquoise") +
+  xlim(1000, 875000) + ylab("Predictor") + labs(title = "Variable Importance Plot") + 
+  theme_minimal() + theme(plot.title = element_text(hjust = 0.5)) + 
+  theme(axis.text = element_text(size = 12),
+        axis.title = element_text(size = 12, face = "bold"))
+p
+```
+
+Based on the variable importance plot we see that Month is the most important variable in telling us about what the temperature will be. The next two important variables are the Dew Point (in $^oF$) and the Humidity Perctentage. 
+
+Now let's evaluate how effective our model is with mean squared error:
+```{r evaluate model}
+predictions = predict(model, test)
+
+MSE(predictions, test$Temp_degF)
+```
+For this model, the mean squared error is \textbf{4.76}
+
+```{r plot data}
+ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
+  geom_point(col = "mediumorchid") +
+  xlab("Predicted") + ylab("Observed") +
+  geom_abline(intercept = 0, slope = 1, color = "navy", size = 1.5) + 
+  geom_text(data=data.frame(x=92,y=85), aes(x, y), label="y = x", color="navy", size = 5)
+```
