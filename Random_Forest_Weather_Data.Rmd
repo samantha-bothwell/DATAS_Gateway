@@ -142,3 +142,56 @@ ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
   geom_abline(intercept = 0, slope = 1, color = "navy", size = 1.5) + 
   geom_text(data=data.frame(x=92,y=85), aes(x, y), label="y = x", color="navy", size = 5)
 ```
+
+Now, it's intuitive that month has a strong impact on the temperature. Let's take time out of the data and see how the random forest algorithm performs:
+```{r new data}
+dat = dat[,-c(1:4)]
+```
+
+```{r}
+set.seed(2019) # set seed for reproducible results
+
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(dat))
+train_ind <- sample(seq_len(nrow(dat)), size = smp_size)
+
+train <- dat[train_ind, ]
+test <- dat[-train_ind, ]
+```
+
+```{r, cache = TRUE}
+# Random Forest algorithm
+model = randomForest(`Temp_degF`~., data = train)
+```
+
+```{r print a tree}
+# make a function to print certain text in tree nodes
+nodefun = function(x, labs, digits, varlen){
+  paste("Avg Temp:", round(x$frame$yval,2), "\nn =", x$frame$n, "  ", 
+        "\nPct =", round(x$frame$n/x$frame$n[1]*100,2),"%")
+}
+
+# plot decision tree
+tree = rpart(model, train)
+fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", yesno = 2, node.fun = nodefun)
+```
+
+Let's evaluate how this model performed with the MSE:
+```{r evaluate model}
+predictions = predict(model, test)
+
+MSE(predictions, test$Temp_degF)
+```
+It turns out that our mean squared error is actually lower when we remove time. Why is this?
+
+```{r plot data}
+# plot predictions vs observed temperatures
+ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
+  geom_point(col = "mediumorchid") +
+  xlab("Predicted") + ylab("Observed") +
+  geom_abline(intercept = 0, slope = 1, color = "navy", size = 1.5) + 
+  geom_text(data=data.frame(x=92,y=85), aes(x, y), label="y = x", color="navy", size = 5)
+```
+
+
+So we've seen that random forest is great for filling in missing data, but how about future predictions? In general, random forests don't provide a good fit when there's seasonality in time series data.
