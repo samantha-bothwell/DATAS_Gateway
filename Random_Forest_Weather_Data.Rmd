@@ -4,7 +4,9 @@ author: "Samantha Bothwell"
 date: "6/11/2019"
 output: pdf_document
 ---
-The random forest algorithm is a form of supervised learning. Random Forests are a form of decision trees. In the algorithm, trees are built by choosing a random subset of variables and then the model averages the predicitons of all the trees.
+## Random Forest Background
+
+The random forest algorithm is a form of supervised learning. Random Forests are a form of decision trees. In the algorithm, trees are built by choosing a random subset of variables and then the model averages the predicitons of all the trees. 
 
 The random forest algorithm is most often used when there is a mixture of numeric and factor variables. Before using the random forest algorithm, here are some pros and cons to consider:
 
@@ -20,12 +22,16 @@ The random forest algorithm is most often used when there is a mixture of numeri
   \item This is a black box algorithm - meaning, though it is powerful for predicting, it is difficult to interpret.
   \item When working with a dataset with significant noise, the algorithm will overfit.
   \item Variable importance is biased towards categorical variables with more levels. 
+  \item The algorithm performs poorly with predicting future data if there is any seasonality. 
+\end{itemize}
+
+The takeaway here is that the algorithm will perform poorly with time series data. This will be shown in the document.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-```{r load packages}
+```{r load packages, include=FALSE}
 # Load important packages
 library(tidyr)
 library(randomForest)
@@ -34,50 +40,34 @@ library(party)
 library(rpart)
 library(rpart.plot)
 library(rattle)
-library(AUCRF)
 library(ggplot2)
 library(pdp)
+library(ROCR)
+library(MLmetrics)
 ```
 
+## Clean Data
+The data we will be using was taken from http://www.atmos.colostate.edu/fccwx/fccwx_latest.php, a record of climate observations for Fort Collins, CO. The data was taken hourly from June 2018 - June 2019. Later we will look at data from June 2014 - June 2019. We will remove the first column that represents the time the data point was taken. 
 ```{r clean data}
 # First we read in the data and clean it
 setwd("/Users/sbothwell/Desktop/DATAS/My_material")
 dat = read.csv("Weather.csv", stringsAsFactors = FALSE)
 
-# Remove first column
-dat = dat[,-1]
+# Remove first two columns
+dat = dat[,-c(1,2)]
 
 # Rename columns
-colnames(dat) = c("DateTime_MST","Temp_degF","Humidity_Pct","DewPt_degF","Wind_mph",
+colnames(dat) = c("Temp_degF","Humidity_Pct","DewPt_degF","Wind_mph",
                   "WindDir_degNorth","Gust_mph","GustDir_degNorth","Pressure_Hg",
                   "Solar_WatPerSqM","Percipitation_in")
 
-# Split date and time
-dat = dat %>% separate(`DateTime_MST`, c("Date","Time_MST"), " ")
-
-# Split date
-dat = dat %>% separate(Date, c("Year","Month","Day"), "-")
-
-# Split time to make numeric
-dat = dat %>% separate(`Time_MST`, c("Time", "Minute"), ":")
-dat = dat[,-5]
-dat$Time = as.numeric(dat$Time)
-
-# Change numeric month to character
-dat$Month = as.numeric(dat$Month)
-dat$Month = month.abb[dat$Month]
-
 # remove any NA's from the dataset
 dat = dat[complete.cases(dat),]
-
-# all varibles must be numeric or factor for RF to work
-dat$Year = as.factor(dat$Year)
-dat$Month = as.factor(dat$Month)
-dat$Day = as.factor(dat$Day)
 ```
 
+## Analysis
 Now that our data is clean, let's walk through using the Random Forest Algorithm.
-First we will make data sets for testing and training. These are random samples from our original data. We will use the training data to make the model and the testing data to evaluate how effective our model is at making predictions. For this data, I will make my training data 75% of the original data set and testing data the other 25% of the original data set. 
+First, we will make data sets for testing and training. These are random samples from our original data. We will use the training data to make the model and the testing data to evaluate how effective our model is at making predictions. For this data, I will make my training data 75% of the original data set and testing data the other 25% of the original data set. 
 ```{r make data sets}
 set.seed(2019) # set seed for reproducible results
 
@@ -88,12 +78,22 @@ train_ind <- sample(seq_len(nrow(dat)), size = smp_size)
 train <- dat[train_ind, ]
 test <- dat[-train_ind, ]
 ```
-For the model we will try to predict the temperature based on the remaining variables
-```{r train the model}
+
+For the model we will try to predict the temperature based on the remaining variables.
+```{r train the model, cache = TRUE}
 # Random Forest algorithm
 model = randomForest(`Temp_degF`~., data = train)
 ```
 
+## Visuals
+There are many visuals we can make from Random Forest to understand our data better. The visuals I will give examples of are:
+\begin{itemize}
+  \item Decision Tree
+  \item Variable Importance Plot
+  \item Partial Plot
+\end{itemize}
+
+### Decision Tree
 We can view one of the trees from the Forest
 ```{r print a tree}
 # make a function to print certain text in tree nodes
@@ -104,8 +104,11 @@ nodefun = function(x, labs, digits, varlen){
 
 # plot decision tree
 tree = rpart(model, train)
-fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", yesno = 2, node.fun = nodefun)
+fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="",
+               yesno = 2, node.fun = nodefun)
 ```
+
+The tree first determines the most important variable in predicting the temperature. Here, it appears that month gives us a good indication about the weather. For the months June, July, August, and September the temperature is the highest (at least where the samples were taken - Fort Collins, CO). 
 
 ```{r}
 IncNodePur = model$importance[1:13]
@@ -136,12 +139,14 @@ MSE(predictions, test$Temp_degF)
 For this model, the mean squared error is \textbf{4.76}
 
 ```{r plot data}
+# plot predictions vs observed temperatures
 ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
   geom_point(col = "mediumorchid") +
   xlab("Predicted") + ylab("Observed") +
   geom_abline(intercept = 0, slope = 1, color = "navy", size = 1.5) + 
   geom_text(data=data.frame(x=92,y=85), aes(x, y), label="y = x", color="navy", size = 5)
 ```
+
 
 Now, it's intuitive that month has a strong impact on the temperature. Let's take time out of the data and see how the random forest algorithm performs:
 ```{r new data}
@@ -164,7 +169,7 @@ test <- dat[-train_ind, ]
 model = randomForest(`Temp_degF`~., data = train)
 ```
 
-```{r print a tree}
+```{r}
 # make a function to print certain text in tree nodes
 nodefun = function(x, labs, digits, varlen){
   paste("Avg Temp:", round(x$frame$yval,2), "\nn =", x$frame$n, "  ", 
@@ -173,18 +178,19 @@ nodefun = function(x, labs, digits, varlen){
 
 # plot decision tree
 tree = rpart(model, train)
-fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", yesno = 2, node.fun = nodefun)
+fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="", 
+               yesno = 2, node.fun = nodefun)
 ```
 
 Let's evaluate how this model performed with the MSE:
-```{r evaluate model}
+```{r}
 predictions = predict(model, test)
 
 MSE(predictions, test$Temp_degF)
 ```
 It turns out that our mean squared error is actually lower when we remove time. Why is this?
 
-```{r plot data}
+```{r}
 # plot predictions vs observed temperatures
 ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
   geom_point(col = "mediumorchid") +
@@ -195,3 +201,34 @@ ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
 
 
 So we've seen that random forest is great for filling in missing data, but how about future predictions? In general, random forests don't provide a good fit when there's seasonality in time series data.
+
+```{r}
+# make testing and training data sets
+N = ceiling(0.75*nrow(dat))
+train = dat[1:N-1,] #First 75% of the data
+test = dat[N:nrow(dat),] #Final 25% of the data
+```
+
+```{r, cache = TRUE}
+# Random Forest algorithm
+model = randomForest(`Temp_degF`~., data = train)
+```
+
+```{r}
+predictions = predict(model, test)
+
+MSE(predictions, test$Temp_degF)
+```
+Our mean squared error in this case is significantly larger than the previous examples! 
+
+```{r}
+# plot predictions vs observed temperatures
+ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
+  geom_point(col = "mediumorchid") +
+  xlab("Predicted") + ylab("Observed") +
+  geom_abline(intercept = 0, slope = 1, color = "navy", size = 1.5) + 
+  geom_text(data=data.frame(x=92,y=85), aes(x, y), label="y = x", color="navy", size = 5)
+```
+So the predicted value is consistently higher than the observed value. 
+
+In general, the Random Forest algorithm will provide an average result and can not predict future results (extrapolate) becuase it does not understand data with seasonality. 
