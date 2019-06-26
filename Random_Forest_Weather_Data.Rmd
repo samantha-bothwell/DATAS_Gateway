@@ -6,7 +6,7 @@ output: pdf_document
 ---
 
 
-## Random Forest Background
+# Random Forest Background
 
 The random forest algorithm is a form of supervised learning. Random Forests are a form of decision trees. In the algorithm, trees are built by choosing a random subset of variables and then the model averages the predicitons of all the trees. 
 
@@ -49,7 +49,7 @@ library(pdp)
 library(caret)
 ```
 
-## Clean Data
+# Clean Data
 The data we will be using was taken from http://www.atmos.colostate.edu/fccwx/fccwx_latest.php, a record of climate observations for Fort Collins, CO. The data was taken hourly from June 2018 - June 2019. Later we will look at data from June 2014 - June 2019. We will remove the first column that represents the time the data point was taken. 
 ```{r clean data}
 # First we read in the data and clean it
@@ -68,7 +68,7 @@ colnames(dat) = c("Temp_degF","Humidity_Pct","DewPt_degF","Wind_mph",
 dat = dat[complete.cases(dat),]
 ```
 
-## Analysis - Filling in missing data
+# Analysis - Filling in missing data
 Now that our data is clean, let's walk through using the Random Forest Algorithm.
 First, we will make data sets for testing and training. These are random samples from our original data. We will use the training data to make the model and the testing data to evaluate how effective our model is at making predictions. For this data, I will make my training data 75% of the original data set and testing data the other 25% of the original data set. 
 ```{r make data sets}
@@ -88,7 +88,7 @@ For the model we will try to predict the temperature based on the remaining vari
 model = randomForest(`Temp_degF`~., data = train)
 ```
 
-### Visuals
+## Visuals
 There are many visuals we can make from Random Forest to understand our data better. The visuals I will give examples of are:
 \begin{itemize}
   \item Decision Tree
@@ -96,7 +96,7 @@ There are many visuals we can make from Random Forest to understand our data bet
   \item Partial Plot
 \end{itemize}
 
-#### Decision Tree
+### Decision Tree
 We can view one of the trees from the Forest.
 ```{r print a tree}
 # make a function to print certain text in tree nodes
@@ -113,7 +113,7 @@ fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="",
 
 
 
-#### Variable Importance Plot
+### Variable Importance Plot
 With the randomForest package, you can create a variable importance plot with the following command:
 ```{r, fig.show = "hide"}
 varImpPlot(model)
@@ -143,7 +143,7 @@ p
 
 Based on the variable importance plot we see that Dew Point (in $^oF$) is the most important variable in telling us about what the temperature will be. The next two important variables are the Humidity Perctentage and Solar ($W/m^2$). 
 
-#### Partial Plots
+### Partial Plots
 Partial plots show the relationship between each of the variables and the response. Once again, there is a quick way to do this...and my preferred way. The quick way, again using the randomForest package, would be to use the partialPlot command. Alternatively, I use the ggplot and pdp package to create partial plots:
 ```{r partial plots, cache = TRUE}
 pa <- partial(model, pred.var = "DewPt_degF", plot = TRUE,
@@ -173,7 +173,7 @@ pc <- partial(model, pred.var = "Solar_WatPerSqM", plot = TRUE,
 grid.arrange(pa, pb, pc, nrow=2)
 ```
 
-### Evaluate Model
+## Evaluate Model
 Now let's evaluate how effective our model is with mean squared error:
 ```{r evaluate model}
 predictions = predict(model, test)
@@ -203,7 +203,7 @@ ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
 
 \newpage
 
-## Analysis - Future Predictions
+# Analysis - Future Predictions
 ```{r, include = FALSE}
 # First we read in the data and clean it
 setwd("/Users/sbothwell/Desktop/DATAS/My_material")
@@ -235,6 +235,8 @@ test = dat[N:nrow(dat),] #Final 25% of the data
 model = randomForest(`Temp_degF`~., data = train)
 ```
 
+## Evaluate Model
+Let's evaulate how effective this model is compared to the previous model:
 ```{r}
 predictions = predict(model, test)
 
@@ -255,3 +257,6 @@ ggplot(data = NULL, aes(x=predictions, y=test$Temp_degF)) +
 So the predicted value is consistently higher than the observed value. 
 
 In general, the Random Forest algorithm will provide an average result and can not predict future results (extrapolate) becuase it does not understand data with seasonality. 
+
+
+
