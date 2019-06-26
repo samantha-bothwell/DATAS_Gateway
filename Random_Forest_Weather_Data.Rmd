@@ -110,7 +110,7 @@ tree = rpart(model, train)
 fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="",
                yesno = 2, node.fun = nodefun)
 ```
-
+This tree shows how the algorithm splits observations into categories of temperatures. Each node displays the average temperature of the observations that fall in that category, the number of observations, and the percentage of the observations that fall into that category. First the algorithm looks at the Dew Point and determines that if the observation has a dew point less than 26$^oF$, it has a lower temperature.  Next, the algorithm splits observations based on Humidity Percentage. 
 
 
 ### Variable Importance Plot
@@ -141,7 +141,7 @@ p = ggplot(Imp, aes(IncNodePur, names)) +
 p
 ```
 
-Based on the variable importance plot we see that Dew Point (in $^oF$) is the most important variable in telling us about what the temperature will be. The next two important variables are the Humidity Perctentage and Solar ($W/m^2$). 
+Based on the variable importance plot we see that Dew Point (in $^oF$) is the most important variable in telling us about what the temperature will be. The next two important variables are the Humidity Perctentage and Solar ($W/m^2$). This follows with the decision tree that used Dew Point and Humidity Percentage to classify temperatures. 
 
 ### Partial Plots
 Partial plots show the relationship between each of the variables and the response. Once again, there is a quick way to do this...and my preferred way. The quick way, again using the randomForest package, would be to use the partialPlot command. Alternatively, I use the ggplot and pdp package to create partial plots:
@@ -172,6 +172,8 @@ pc <- partial(model, pred.var = "Solar_WatPerSqM", plot = TRUE,
 
 grid.arrange(pa, pb, pc, nrow=2)
 ```
+
+What these partial plots show is the relationship between the variable and the predicted temperature. Based on the partial plot, as the dew point increases so does the predicted temperature. This is also the case for Solar. On the other hand, as the humidity percentage increases the predicted temperature decreases.
 
 ## Evaluate Model
 Now let's evaluate how effective our model is with mean squared error:
