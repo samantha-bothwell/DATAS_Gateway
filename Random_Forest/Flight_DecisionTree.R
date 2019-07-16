@@ -12,6 +12,7 @@ library(pdp)
 library(ROCR)
 library(MLmetrics)
 library(caret)
+library(e1071)
 
 
 
@@ -53,4 +54,6 @@ tree = rpart(model, train, control=rpart.control(minsplit=2, minbucket=1, cp=0.0
 fancyRpartPlot(tree, palettes=c("Reds"), main="Decision Tree Graph", sub="",
                yesno = 2)
 
-
+# Confusion Matrix
+predictions = predict(model, test)
+confusionMatrix(predictions, test$Delayed30)
