@@ -18,14 +18,14 @@ library(e1071)
 
 # First we read in the data and clean it
 setwd("/Users/sbothwell/Desktop/DATAS/My_material/Random_Forest")
-flights = read.csv("FlightDelays.csv", stringsAsFactors = FALSE)
+flights = read.csv("FlightDelays.csv", stringsAsFactors = TRUE)
 
 # Remove unneeded columns
 flights = flights[,-c(1,9)]
 
 # Make all variables either numeric or factor
-cols <- c(1,3,4,5,6,8)
-flights[cols] <- lapply(flights[cols], factor)
+cols <- c(2,7)
+flights[cols] <- lapply(flights[cols], numeric)
 
 
 
