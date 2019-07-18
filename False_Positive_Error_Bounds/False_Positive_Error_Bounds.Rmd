@@ -43,7 +43,7 @@ To determine the confidence interval we will use, let's use R:
 ```
 So, the 95% confidence interval for the number of false positives is \textbf{[49.6, 50.4]} - or we can say the 95% confidence interval for the proportion of false positives is [0.0496, 0.0504].
 
-Unfortunately, we cannot always know exactly where our false positive lies. But we are 95% confident that the true number of false positives present in a sample of 1000 is within the interval [49.6, 50.4].
+Unfortunately, we cannot always know exactly where our false positives lie. But, we are 95% confident that the true number of false positives present in a sample of 1000 is within the interval [49.6, 50.4].
 
 
 ### Simulation
@@ -79,10 +79,10 @@ too_high = (0 < dat$Lower)
 too_low = (0 > dat$Upper)
 
 # Proportion of misses - this should be approximately alpha
-paste("Proportion of hits:", mean(too_low + too_high))
+paste("Proportion of misses:", mean(too_low + too_high))
 ```
 
-So, in this case the proportion of false positives in a sample of 100 replicates of a normal distribution is 0.06 - meaning we have 6 total false positives. We can visualize our 100 confidence intervals and see the 6 replicates that missed $\mu = 0$.
+So, in this case, the proportion of false positives in a sample of 100 replicates of a normal distribution is 0.06 - meaning we have 6 total false positives. We can visualize our 100 confidence intervals and see the 6 replicates that missed $\mu = 0$.
 
 ```{r}
 # Plot the CIs
@@ -105,6 +105,7 @@ set.seed(2019)
 N = 1000
 n = 100
 
+# set up matrices to be filled in through simulation
 misses = matrix(data = NA, nrow = N, ncol = 1)
 dat = matrix(data = NA, nrow = n, ncol = 3)
 dat = as.data.frame(dat)
@@ -133,6 +134,8 @@ library(ggplot2)
 qplot(misses, geom = "histogram", binwidth = 0.01, main = paste(N, "simulations"),
       xlab = "Proportion of False Positives", ylab = "Frequency", fill = I("mediumorchid"),
       col = I("black")) +
+  
+  # plot line at alpha = 0.05
   geom_vline(xintercept = 0.05, linetype = "dashed", color = "turquoise3", size = 1.5) + 
   theme(plot.title = element_text(hjust = 0.5))
 ```
@@ -143,8 +146,7 @@ test = t.test(misses, mu = 0.05)
 test$conf.int[c(1,2)]
 ```
 
-Based on the simulations, the 95% confidence interval for the number of false positives is [0.048, 0.051] - this is pretty close to our theoretical calculation. 
-
+Based on the simulations, the 95% confidence interval for the number of false positives is [0.049, 0.051] - this is pretty close to our theoretical calculation. 
 
 
 
