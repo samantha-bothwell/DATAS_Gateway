@@ -1,0 +1,106 @@
+---
+title: "Poisson Rates"
+author: "Samantha Bothwell"
+date: "8/7/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Definition
+The Poisson Distribution is discrete and used for count data, where you determine the probability that a given number of events occur within a time period. This distribution takes one parameter, often denoted with the symbol $\lambda$  which is a known fixed rate which represents the number of events expected to occur in a certain time interval. We would say
+\[
+N \sim Poisson(\lambda)
+\]
+
+## Probability Mass Function
+
+The probability of observing k events occur within a time interval is given by the equation:
+
+\begin{center}
+  P($k$ events occur) = \Large $\frac{e^{-\lambda}\lambda^k}{k!}$
+\end{center}
+
+\normalsize
+where $k$ = 0, 1, 2...
+
+This pmf can be adapted so that the parameter is a time rate, $\lambda = rt$. In this case, $r$ is 1 unit per time period. The equation then changes to the following:
+
+\begin{center}
+  P($k$ events occur in time $t$) = \Large$\frac{e^{-rt}(rt)^k}{k!}$ 
+\end{center}
+
+\normalsize
+
+## Poisson vs Binomial Distribution
+
+Use the Poisson distribution when you are trying to determine the probability of a certain number of defined events happening in a given time period.
+
+Use the Binomial distribution when you are trying to determine the probability of a certain number of defined events happening out of a determined number of trials. 
+
+The binomial distribution converges to the poisson for a large sample size. (i.e. $np \rightarrow \lambda$ for large $n$)
+
+## Poisson Process
+
+To explain the poisson process, I will first define the following variables:
+\begin{itemize}
+ \item $N_t$ = count of the number of events that are registered at time $t$
+ \item $\upsilon$ = the mean number of events per unit time (\textit{intensity})
+ \item $\upsilon_t$ = mean number of events in $t$ time units
+\end{itemize}
+ 
+Here, $N_t \sim Poisson(\lambda)$ where $\lambda = \upsilon t$
+
+#### Definition
+The collection ${N_t:t \geq 0}$ is called the poisson process if it satisfies the following:
+\begin{enumerate}
+  \item $N_0 = 0$
+  \item If $s<t$, $N_s$ and $N_t-N_s$ are independent (\textit{memoryless})
+  \item $N_{s+t} - N_t$ and $N_s$ have the same distribution (\textit{stationary})
+  \item $lim_{t \rightarrow 0} = \frac{P(N_t = 1)}{t} = \upsilon$
+  \item $lim_{t \rightarrow 0} = \frac{P(N_t > 1)}{t} = 0$ (can't have two events happen at the same time)
+\end{enumerate}
+
+## Descriptive Statistics
+
+Based on the pmf, let's derive the mean and variance of the poisson distribution:
+
+\begin{align*}
+\mu = E[N] &= \sum_{k = 0}^\infty k \frac{e^{-\lambda}\lambda^k}{k!} \\
+&= \sum_{k = 0}^\infty \frac{e^{-\lambda}\lambda^k}{(k-1)!} \\
+&= \lambda \sum_{k = 1}^\infty \frac{e^{-\lambda}\lambda^{k-1}}{(k-1)!} \hspace{5mm} \textrm{Let } m = k-1 \\
+&= \lambda \sum_{m = 0}^\infty \frac{e^{-\lambda}\lambda^m}{m!} \\
+&= \lambda \cdot 1 \hspace{22mm} \textrm{Since } \sum_{k = 0}^\infty \frac{e^{-\lambda}\lambda^k}{k!} = 0 \\
+&= \lambda
+\end{align*}
+
+We will calculate variance using the formula $\sigma^2 = E[N(N-1)] + E[N] - E[N]^2$.
+
+We will first derive $E[N(N-1)]$
+
+\begin{align*}
+E[N(N-1)] &= \sum_{k = 0}^\infty k(k-1) \frac{e^{-\lambda}\lambda^k}{k!} \\
+&= \sum_{k = 0}^\infty \frac{e^{-\lambda}\lambda^k}{(k-2)!} \\
+&= \lambda^2 \sum_{k = 2}^\infty \frac{e^{-\lambda}\lambda^{k-2}}{(k-2)!} \hspace{10mm} \textrm{Let } m = k-2 \\
+&= \lambda^2 \sum_{m = 0}^\infty \frac{e^{-\lambda}\lambda^m}{m!} \\
+&= \lambda^2 \cdot 1 \hspace{27mm} \textrm{Since } \sum_{k = 0}^\infty \frac{e^{-\lambda}\lambda^k}{k!} = 0 \\
+&= \lambda^2
+\end{align*}
+
+Now, we can solve for the variance:
+
+\begin{align*}
+\sigma^2 = Var[N] = E[N(N-1)] + E[N] - E[N]^2 = \lambda^2 + \lambda - \lambda^2 = \lambda
+\end{align*}
+
+So, for the poisson distribution, $\mu = \sigma^2 = \boldsymbol{\lambda}$
+
+
+## Example
+
+An example of using the poisson process to model the number of lightening strikes can be found in the following article:
+
+[Stochastic Modeling of Lightning Occurrence by Nonhomogeneous Poisson Process](https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6344400)
+
