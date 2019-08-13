@@ -1,0 +1,64 @@
+---
+title: "Gamma Distribution"
+author: "Samantha Bothwell"
+date: "8/13/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Definition
+
+The \textbf{Gamma Distribution} is continuous and is the sum of exponentials, where you determine the probability it will take a certain amount of time to see a fixed number of events occur. This distribution takes two parameters, the number of events and the rate, $\upsilon$, at which the events occur. We would say 
+
+\begin{center}
+  $W_r \sim Gamma(r, \upsilon)$
+\end{center}
+
+Alternatively, you could also exchange the rate with the mean, $\theta$, such that $\theta = \frac{1}{\upsilon}$. In this case,
+
+\begin{center}
+  $W_r \sim Gamma(r, \theta)$
+\end{center}
+
+
+## Probability Density Function
+
+The probability of waiting $w$ time to see $r$ events occur is:
+
+\begin{center}
+  $f(w)$ = \Large $\frac{\upsilon^r w^{r-1}}{\Gamma (r)}e^{-\upsilon w}$
+\end{center}
+
+\normalsize
+This pdf can be adapted so that the parameter is the mean:
+
+\begin{center}
+  $f(w)$ = \Large$\frac{w^{r-1}}{\theta^r \Gamma (r)}e^{-w/\theta}$
+\end{center}
+
+\normalsize
+For $r \in \mathbb{Z}^+, \Gamma (r) = (r-1)!$
+
+
+## Descriptive Statistics 
+
+The Gamma distribution is simply the sum of independent exponentials ($W_r = Y_1 + Y_2 + ... + Y_r$ where $Y_i$'s are independent). Therefore, the mean of the gamma distribution is:
+
+
+\begin{center}
+  $E[W_r] = E[\sum_{i=1}^r Y_i] = \sum_{i=1}^r \frac{1}{\upsilon} = \frac{r}{\upsilon} = r\theta$
+\end{center}
+
+And the variance of the gamma distribution is:
+
+\begin{center}
+  $Var[W_r] = Var[\sum_{i=1}^r Y_i] = \sum_{i=1}^r \frac{1}{\upsilon^2} = \frac{r}{\upsilon^2} = r\theta^2$
+\end{center}
+
+
+
+
+
